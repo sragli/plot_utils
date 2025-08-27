@@ -7,7 +7,13 @@ defmodule PlotUtils.MixProject do
       version: "0.1.0",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      description: description(),
+      package: package(),
+      deps: deps(),
+      name: "PlotUtils",
+      source_url: "https://github.com/sragli/plot_utils",
+      docs: docs()
+
     ]
   end
 
@@ -23,6 +29,25 @@ defmodule PlotUtils.MixProject do
       {:kino, "~> 0.11"},
       {:vega_lite, "~> 0.1"},
       {:kino_vega_lite, "~> 0.1"},
+    ]
+  end
+
+  defp description() do
+    "Elixir utilities for creating complex visualizations of data."
+  end
+
+  defp package() do
+    [
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG),
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => "https://github.com/sragli/plot_utils"}
+    ]
+  end
+
+  defp docs() do
+    [
+      main: "PlotUtils",
+      extras: ["README.md", "LICENSE", "CHANGELOG"]
     ]
   end
 end
