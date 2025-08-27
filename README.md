@@ -4,8 +4,7 @@ Elixir utilities for creating complex visualizations of data.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `plot_utils` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `plot_utils` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do

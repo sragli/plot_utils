@@ -8,7 +8,7 @@ defmodule PlotUtils.ArrayPlot do
   Creates an array plot visualization of a 2D tensor using Kino.
 
   ## Parameters
-  - `tensor`: Nx.Tensor.t() - A 2D tensor to visualize
+  - `data`: Nx.Tensor.t() | list of lists - A 2D tensor to visualize
   - `opts`: Keyword list of options
     - `:colorscheme` - Color scheme to use (default: :grayscale)
     - `:width` - Width of the plot in pixels (default: 400)
@@ -16,21 +16,22 @@ defmodule PlotUtils.ArrayPlot do
     - `:title` - Title for the plot (default: "Array Plot")
     - `:show_values` - Whether to show numeric values in cells (default: false)
   """
-  def array_plot(tensor, opts \\ []) do
-    # Validate input
-    unless Nx.rank(tensor) == 2 do
-      raise ArgumentError, "ArrayPlot requires a 2D tensor, got rank #{Nx.rank(tensor)}"
+  def array_plot(data, opts \\ [])
+
+  def array_plot(%Nx.Tensor{} = data, opts) do
+    unless Nx.rank(data) == 2 do
+      raise ArgumentError, "requires a 2D tensor, got rank #{Nx.rank(data)}"
     end
 
-    # Extract options
+    array_plot(Nx.to_list(data), opts)
+  end
+
+  def array_plot(data, opts) do
     colorscheme = Keyword.get(opts, :colorscheme, :grayscale)
     width = Keyword.get(opts, :width, 400)
     height = Keyword.get(opts, :height, 400)
     title = Keyword.get(opts, :title, "Array Plot")
     show_values = Keyword.get(opts, :show_values, false)
-
-    # Convert tensor to nested list for easier processing
-    data = tensor |> Nx.to_list()
 
     # Normalize data to 0-1 range for color mapping
     flat_data = List.flatten(data)
@@ -51,7 +52,6 @@ defmodule PlotUtils.ArrayPlot do
         end)
       end
 
-    # Generate SVG
     svg_content =
       generate_svg(
         normalized_data,
