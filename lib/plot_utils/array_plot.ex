@@ -15,6 +15,7 @@ defmodule PlotUtils.ArrayPlot do
     - `:height` - Height of the plot in pixels (default: 400)
     - `:title` - Title for the plot (default: "Array Plot")
     - `:show_values` - Whether to show numeric values in cells (default: false)
+    - `:show_colorbar` - Display/turn off color bar (default: true)
   """
   def array_plot(data, opts \\ [])
 
@@ -32,6 +33,7 @@ defmodule PlotUtils.ArrayPlot do
     height = Keyword.get(opts, :height, 400)
     title = Keyword.get(opts, :title, "Array Plot")
     show_values = Keyword.get(opts, :show_values, false)
+    show_colorbar = Keyword.get(opts, :show_colorbar, true)
 
     # Normalize data to 0-1 range for color mapping
     flat_data = List.flatten(data)
@@ -60,13 +62,23 @@ defmodule PlotUtils.ArrayPlot do
         height,
         title,
         show_values,
+        show_colorbar,
         {min_val, max_val}
       )
 
     Kino.Image.new(svg_content, :svg)
   end
 
-  defp generate_svg(data, colorscheme, width, height, title, show_values, {min_val, max_val}) do
+  defp generate_svg(
+         data,
+         colorscheme,
+         width,
+         height,
+         title,
+         show_values,
+         show_colorbar,
+         {min_val, max_val}
+       ) do
     rows = length(data)
     cols = length(hd(data))
 
@@ -127,7 +139,7 @@ defmodule PlotUtils.ArrayPlot do
       |> Enum.join("\n")
 
     # Generate colorbar
-    colorbar = generate_colorbar(colorscheme, width, height, {min_val, max_val})
+    colorbar = generate_colorbar(colorscheme, width, height, {min_val, max_val}, show_colorbar)
 
     """
     <svg width="#{width}" height="#{height}" xmlns="http://www.w3.org/2000/svg">
@@ -136,22 +148,20 @@ defmodule PlotUtils.ArrayPlot do
         .axis-label { font-family: Arial, sans-serif; font-size: 12px; }
       </style>
 
-      <!-- Title -->
+      <rect x="0.5" y="0.5" width="#{width - 1}" height="#{height - 1}" stroke="#000000" stroke-width="1" fill="none"/>
+      
       <text x="#{width / 2}" y="25" text-anchor="middle" class="title">#{title}</text>
 
-      <!-- Array plot -->
       #{cells}
 
-      <!-- Colorbar -->
       #{colorbar}
 
-      <!-- Dimensions info -->
       <text x="#{x_offset}" y="#{height - 10}" class="axis-label">#{rows}×#{cols}</text>
     </svg>
     """
   end
 
-  defp generate_colorbar(colorscheme, width, height, {min_val, max_val}) do
+  defp generate_colorbar(colorscheme, width, height, {min_val, max_val}, true) do
     colorbar_width = 20
     colorbar_height = height * 0.5
     colorbar_x = width * 0.92
@@ -182,6 +192,10 @@ defmodule PlotUtils.ArrayPlot do
     <text x="#{colorbar_x + colorbar_width + 5}" y="#{colorbar_y + 5}" class="axis-label">#{max_val}</text>
     <text x="#{colorbar_x + colorbar_width + 5}" y="#{colorbar_y + colorbar_height}" class="axis-label">#{min_val}</text>
     """
+  end
+
+  defp generate_colorbar(_colorscheme, _width, _height, {_min_val, _max_val}, false) do
+    ""
   end
 
   defp get_color(value, :viridis) do
