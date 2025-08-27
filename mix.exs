@@ -13,7 +13,6 @@ defmodule PlotUtils.MixProject do
       name: "PlotUtils",
       source_url: "https://github.com/sragli/plot_utils",
       docs: docs()
-
     ]
   end
 
@@ -28,7 +27,7 @@ defmodule PlotUtils.MixProject do
       {:nx, "~> 0.6"},
       {:kino, "~> 0.11"},
       {:vega_lite, "~> 0.1"},
-      {:kino_vega_lite, "~> 0.1"},
+      {:kino_vega_lite, "~> 0.1"}
     ]
   end
 
