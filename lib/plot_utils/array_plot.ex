@@ -43,7 +43,7 @@ defmodule PlotUtils.ArrayPlot do
   Displays several plots in one image.
 
   ## Parameters
-  - `data`: Map of Nx.Tensor.t(), key: title, value: tensor - 2D tensors to visualize
+  - `data`: Map of Nx.Tensor.t(), (key: title, value: tensor) - 2D tensors to visualize
   - `opts`: Keyword list of options
     - `:colorscheme` - Color scheme to use (default: :grayscale)
     - `:width` - Width of an individual plot in pixels (default: 250)
