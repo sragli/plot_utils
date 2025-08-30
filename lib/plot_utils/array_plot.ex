@@ -5,7 +5,7 @@ defmodule PlotUtils.ArrayPlot do
   """
 
   @doc """
-  Creates an array plot visualization of a 2D tensor using Kino.
+  Creates an array plot visualization of a 2D matrix using Kino.
 
   ## Parameters
   - `data`: Nx.Tensor.t() | list of lists - A 2D tensor to visualize
@@ -17,17 +17,8 @@ defmodule PlotUtils.ArrayPlot do
     - `:show_values` - Whether to show numeric values in cells (default: false)
     - `:show_colorbar` - Display/turn off color bar (default: true)
   """
-  def plot(data, opts \\ [])
-
-  def plot(%Nx.Tensor{} = data, opts) do
-    unless Nx.rank(data) == 2 do
-      raise ArgumentError, "requires a 2D tensor, got rank #{Nx.rank(data)}"
-    end
-
-    plot(Nx.to_list(data), opts)
-  end
-
-  def plot(data, opts) do
+  @spec plot(Nx.Tensor.t() | list(), list(keyword())) :: Kino.Image.t()
+  def plot(matrix, opts) do
     colorscheme = Keyword.get(opts, :colorscheme, :grayscale)
     width = Keyword.get(opts, :width, 400)
     height = Keyword.get(opts, :height, 400)
@@ -35,39 +26,76 @@ defmodule PlotUtils.ArrayPlot do
     show_values = Keyword.get(opts, :show_values, false)
     show_colorbar = Keyword.get(opts, :show_colorbar, true)
 
-    # Normalize data to 0-1 range for color mapping
-    flat_data = List.flatten(data)
-    min_val = Enum.min(flat_data)
-    max_val = Enum.max(flat_data)
-
-    normalized_data =
-      if min_val == max_val do
-        # Handle constant data
-        Enum.map(data, fn row ->
-          Enum.map(row, fn _ -> 0.5 end)
-        end)
-      else
-        Enum.map(data, fn row ->
-          Enum.map(row, fn val ->
-            (val - min_val) / (max_val - min_val)
-          end)
-        end)
-      end
-
-    svg_content =
-      generate_svg(
-        normalized_data,
-        colorscheme,
-        width,
-        height,
-        title,
-        show_values,
-        show_colorbar,
-        {min_val, max_val}
-      )
-
-    Kino.Image.new(svg_content, :svg)
+    matrix
+    |> convert_matrix()
+    |> generate_svg(
+      colorscheme,
+      width,
+      height,
+      title,
+      show_values,
+      show_colorbar
+    )
+    |> Kino.Image.new(:svg)
   end
+
+  @doc """
+  Displays several plots in one image.
+
+  ## Parameters
+  - `data`: Map of Nx.Tensor.t(), key: title, value: tensor - 2D tensors to visualize
+  - `opts`: Keyword list of options
+    - `:colorscheme` - Color scheme to use (default: :grayscale)
+    - `:width` - Width of an individual plot in pixels (default: 250)
+    - `:height` - Height of individual plot in pixels (default: 250)
+  """
+  @spec tile_plot(map(), list(keyword())) :: Kino.HTML.t()
+  def tile_plot(multi_data, opts \\ []) when is_map(multi_data) do
+    colorscheme = Keyword.get(opts, :colorscheme, :grayscale)
+    width = Keyword.get(opts, :width, 250)
+    height = Keyword.get(opts, :height, 250)
+
+    svgs =
+      Enum.map(multi_data, fn {title, matrix} ->
+        matrix
+        |> convert_matrix()
+        |> generate_svg(colorscheme, width, height, title)
+      end)
+
+    # TODO dynamic tiling
+    """
+    <div style="display: grid; grid-template-columns: repeat(3, #{width}px); gap: 10px;">
+      #{Enum.map(svgs, fn svg -> "<div>" <> svg <> "</div>" end)}
+    </div>
+    """
+    |> Kino.HTML.new()
+  end
+
+  # Normalize data to 0-1 range for color mapping
+  defp normalize(data, min_val, max_val) do
+    if min_val == max_val do
+      # Handle constant data
+      Enum.map(data, fn row ->
+        Enum.map(row, fn _ -> 0.5 end)
+      end)
+    else
+      Enum.map(data, fn row ->
+        Enum.map(row, fn val ->
+          (val - min_val) / (max_val - min_val)
+        end)
+      end)
+    end
+  end
+
+  defp convert_matrix(%Nx.Tensor{} = data) do
+    unless Nx.rank(data) == 2 do
+      raise ArgumentError, "requires a 2D tensor, got rank #{Nx.rank(data)}"
+    end
+
+    Nx.to_list(data)
+  end
+
+  defp convert_matrix(data), do: data
 
   defp generate_svg(
          data,
@@ -75,12 +103,15 @@ defmodule PlotUtils.ArrayPlot do
          width,
          height,
          title,
-         show_values,
-         show_colorbar,
-         {min_val, max_val}
+         show_values \\ false,
+         show_colorbar \\ false
        ) do
     rows = length(data)
     cols = length(hd(data))
+
+    flat_data = List.flatten(data)
+    min_val = Enum.min(flat_data)
+    max_val = Enum.max(flat_data)
 
     # Calculate cell dimensions
     plot_width = width * 0.8
@@ -95,6 +126,7 @@ defmodule PlotUtils.ArrayPlot do
     # Generate cells
     cells =
       data
+      |> normalize(min_val, max_val)
       |> Enum.with_index()
       |> Enum.flat_map(fn {row, row_idx} ->
         row
