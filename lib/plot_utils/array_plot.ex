@@ -17,17 +17,17 @@ defmodule PlotUtils.ArrayPlot do
     - `:show_values` - Whether to show numeric values in cells (default: false)
     - `:show_colorbar` - Display/turn off color bar (default: true)
   """
-  def array_plot(data, opts \\ [])
+  def plot(data, opts \\ [])
 
-  def array_plot(%Nx.Tensor{} = data, opts) do
+  def plot(%Nx.Tensor{} = data, opts) do
     unless Nx.rank(data) == 2 do
       raise ArgumentError, "requires a 2D tensor, got rank #{Nx.rank(data)}"
     end
 
-    array_plot(Nx.to_list(data), opts)
+    plot(Nx.to_list(data), opts)
   end
 
-  def array_plot(data, opts) do
+  def plot(data, opts) do
     colorscheme = Keyword.get(opts, :colorscheme, :grayscale)
     width = Keyword.get(opts, :width, 400)
     height = Keyword.get(opts, :height, 400)
@@ -149,7 +149,7 @@ defmodule PlotUtils.ArrayPlot do
       </style>
 
       <rect x="0.5" y="0.5" width="#{width - 1}" height="#{height - 1}" stroke="#000000" stroke-width="1" fill="none"/>
-      
+
       <text x="#{width / 2}" y="25" text-anchor="middle" class="title">#{title}</text>
 
       #{cells}
