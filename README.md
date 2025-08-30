@@ -16,7 +16,8 @@ end
 
 ## Features
 
-* `array_plot/1` function that replicates Wolfram Language's `ArrayPlot[]` functionality using Kino for visualization
+* `PlotUtils.ArrayPlot.plot/2` - Function that replicates Wolfram Language's `ArrayPlot[]` functionality using Kino for visualization
+* `PlotUtils.ArrayPlot.tile_plot/2` - Displays multiple plots in a tiling manner
 
 ## Color Schemes Available
 
@@ -25,16 +26,16 @@ end
 * `:plasma` - High contrast colormap (purple to pink to yellow)
 * `:coolwarm` - Blue to red diverging colormap
 
-## Uage
+## Usage
 
 ```elixir
 tensor = Nx.tensor([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
 
 # Basic usage
-ArrayPlot.array_plot(tensor)
+PlotUtils.ArrayPlot.plot(tensor)
 
 # With options
-ArrayPlot.array_plot(tensor, 
+PlotUtils.ArrayPlot.plot(tensor, 
   colorscheme: :viridis, 
   title: "My Data", 
   width: 500, 

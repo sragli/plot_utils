@@ -40,7 +40,7 @@ defmodule PlotUtils.ArrayPlot do
   end
 
   @doc """
-  Displays several plots in one image.
+  Displays multiple plots in a tiling manner.
 
   ## Parameters
   - `data`: Map of Nx.Tensor.t(), (key: title, value: tensor) - 2D tensors to visualize
