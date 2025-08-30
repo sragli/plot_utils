@@ -5,7 +5,7 @@ defmodule PlotUtils.ArrayPlot do
   """
 
   @doc """
-  Creates an array plot visualization of a 2D matrix using Kino.
+  Creates an array plot visualization of a 2D matrix.
 
   ## Parameters
   - `data`: Nx.Tensor.t() | list of lists - A 2D tensor to visualize
@@ -48,12 +48,14 @@ defmodule PlotUtils.ArrayPlot do
     - `:colorscheme` - Color scheme to use (default: :grayscale)
     - `:width` - Width of an individual plot in pixels (default: 250)
     - `:height` - Height of individual plot in pixels (default: 250)
+    - `:tiles` - Number of plots in a row (default: 3)
   """
   @spec tile_plot(map(), list(keyword())) :: Kino.HTML.t()
   def tile_plot(multi_data, opts \\ []) when is_map(multi_data) do
     colorscheme = Keyword.get(opts, :colorscheme, :grayscale)
     width = Keyword.get(opts, :width, 250)
     height = Keyword.get(opts, :height, 250)
+    tiles = Keyword.get(opts, :tiles, 3)
 
     svgs =
       Enum.map(multi_data, fn {title, matrix} ->
@@ -62,9 +64,8 @@ defmodule PlotUtils.ArrayPlot do
         |> generate_svg(colorscheme, width, height, title)
       end)
 
-    # TODO dynamic tiling
     """
-    <div style="display: grid; grid-template-columns: repeat(3, #{width}px); gap: 10px;">
+    <div style="display: grid; grid-template-columns: repeat(#{tiles}, #{width}px); gap: 10px;">
       #{Enum.map(svgs, fn svg -> "<div>" <> svg <> "</div>" end)}
     </div>
     """
