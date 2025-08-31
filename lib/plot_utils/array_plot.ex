@@ -18,7 +18,7 @@ defmodule PlotUtils.ArrayPlot do
     - `:show_colorbar` - Display/turn off color bar (default: true)
   """
   @spec plot(Nx.Tensor.t() | list(), list(keyword())) :: Kino.Image.t()
-  def plot(matrix, opts) do
+  def plot(matrix, opts \\ []) do
     colorscheme = Keyword.get(opts, :colorscheme, :grayscale)
     width = Keyword.get(opts, :width, 400)
     height = Keyword.get(opts, :height, 400)
