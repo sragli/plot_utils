@@ -114,7 +114,7 @@ defmodule PlotUtils.ArrayPlot do
     min_val = Enum.min(flat_data)
     max_val = Enum.max(flat_data)
 
-    # Calculate cell dimensions
+    # Cell dimensions
     plot_width = width * 0.8
     plot_height = height * 0.7
     cell_width = plot_width / cols
@@ -124,7 +124,6 @@ defmodule PlotUtils.ArrayPlot do
     x_offset = width * 0.1
     y_offset = height * 0.15
 
-    # Generate cells
     cells =
       data
       |> normalize(min_val, max_val)
@@ -144,12 +143,7 @@ defmodule PlotUtils.ArrayPlot do
 
           text_svg =
             if show_values do
-              original_val =
-                if min_val == max_val do
-                  min_val
-                else
-                  min_val + value * (max_val - min_val)
-                end
+              original_val = if min_val == max_val, do: min_val, else: min_val + value * (max_val - min_val)
 
               text_x = x + cell_width / 2
               text_y = y + cell_height / 2
@@ -158,7 +152,7 @@ defmodule PlotUtils.ArrayPlot do
               """
               <text x="#{text_x}" y="#{text_y}" text-anchor="middle" dominant-baseline="central"
                     font-family="Arial, sans-serif" font-size="#{font_size}"
-                    fill="#{if value > 0.5, do: "white", else: "black"}">
+                    fill="#{color}">
                 #{Float.round(original_val, 2)}
               </text>
               """
@@ -170,9 +164,6 @@ defmodule PlotUtils.ArrayPlot do
         end)
       end)
       |> Enum.join("\n")
-
-    # Generate colorbar
-    colorbar = generate_colorbar(colorscheme, width, height, {min_val, max_val}, show_colorbar)
 
     """
     <svg width="#{width}" height="#{height}" xmlns="http://www.w3.org/2000/svg">
@@ -187,7 +178,7 @@ defmodule PlotUtils.ArrayPlot do
 
       #{cells}
 
-      #{colorbar}
+      #{generate_colorbar(colorscheme, width, height, {min_val, max_val}, show_colorbar)}
 
       <text x="#{x_offset}" y="#{height - 10}" class="axis-label">#{rows}×#{cols}</text>
     </svg>
@@ -302,8 +293,8 @@ defmodule PlotUtils.ArrayPlot do
     end
   end
 
+  # Default to grayscale
   defp get_color(value, _) do
-    # Default to grayscale
     gray = round(255 * (1 - value))
     "rgb(#{gray}, #{gray}, #{gray})"
   end
