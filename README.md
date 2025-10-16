@@ -41,4 +41,7 @@ PlotUtils.ArrayPlot.plot(tensor,
   width: 500, 
   height: 400,
   show_values: true)
+
+# Plot tiling
+PlotUtils.ArrayPlot.tile_plot(tensor, tiles: 4)
 ```
