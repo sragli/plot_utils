@@ -18,6 +18,8 @@ end
 
 * `PlotUtils.ArrayPlot.plot/2` - Function that replicates Wolfram Language's `ArrayPlot[]` functionality using Kino for visualization
 * `PlotUtils.ArrayPlot.tile_plot/2` - Displays multiple plots in a tiling manner
+* `PlotUtils.BoxPlot.plot/1` - Displays a box plot from a list
+* `PlotUtils.BoxPlot.plot_map/1` - Displays a box plot from a map of list values
 
 ## Color Schemes Available
 
